@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author FHJ
@@ -35,6 +38,10 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     @Resource
     private JavaMailSender javaMailSender;//我们需要用这个进行邮件发送
@@ -73,7 +80,10 @@ public class UserController {
 
             //将生成的验证码保存到Session将我们生成的手机号和验证码放到session里面，我们后面用户填入验证码之后，我们验证的时候就从这里去取然后进行比对
             //这里我们需要一个异常捕获
-            session.setAttribute(phone, code);
+            //session.setAttribute(phone, code);
+
+            //将验证码放在redis中，设置有效期5分钟
+            redisTemplate.opsForValue().set(phone,code,5, TimeUnit.MINUTES);
             //return Rsuccess("手机验证码短信发送成功");
 
             try {
@@ -96,7 +106,10 @@ public class UserController {
         //获取验证码
         String code = map.get("code").toString();
         //从session中获取保存的验证码
-        Object codeInSession = session.getAttribute(phone);
+        //Object codeInSession = session.getAttribute(phone);
+
+        //从redis获取
+        Object codeInSession = redisTemplate.opsForValue().get(phone);
         //进行验证码的比比对
         if (codeInSession != null && codeInSession.equals(code)) {
             //比对成功，登录成功
@@ -110,11 +123,28 @@ public class UserController {
                 userService.save(user);
             }
             session.setAttribute("user", user.getId());
+
+            //用户登录成功，删除Redis中缓存的验证码
+            redisTemplate.delete(phone);
             return R.success(user);
 
         }
 
         return R.error("登录失败");
+    }
+
+    /**
+     * 退出功能
+     * ①在controller中创建对应的处理方法来接受前端的请求，请求方式为post；
+     * ②清理session中的用户id
+     * ③返回结果（前端页面会进行跳转到登录页面）
+     * @return
+     */
+    @PostMapping("/loginout")
+    public R<String> logout(HttpServletRequest request){
+        //清理session中的用户id
+        request.getSession().removeAttribute("user");
+        return R.success("退出成功");
     }
 }
 
