@@ -2,6 +2,7 @@ package com.fbyte.reggie.common;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import java.util.Map;
  * @since 1.0
  */
 @Data
-public class R<T> {
+public class R<T> implements Serializable {
 
     private Integer code;
 

@@ -12,6 +12,8 @@ import com.fbyte.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +48,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         log.info("套餐信息:{}", setmealDto);
 
@@ -108,6 +111,7 @@ public class SetmealController {
      * @return
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> delete(@RequestParam List<Long> ids) {
         log.info("ids:{}", ids);
         setmealService.removeWithDish(ids);
@@ -130,6 +134,7 @@ public class SetmealController {
     }
 
     @PutMapping()
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> update(@RequestBody SetmealDto setmealDto) {
         log.info("setmealDto:{}", setmealDto);
 
@@ -143,6 +148,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping("/status/{status}")
+    @CacheEvict(value = "setmealCache",allEntries = true)
     //这个参数这里一定记得加注解才能获取到参数，否则这里非常容易出问题
     public R<String> status(@PathVariable("status") Integer status, @RequestParam List<Long> ids) {
         setmealService.updateSetmealStatusById(status, ids);
@@ -157,6 +163,7 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId+':'+#setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal) {
 
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
