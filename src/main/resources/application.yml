@@ -9,19 +9,19 @@ spring:
       driver-class-name: com.mysql.jdbc.Driver
       url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
-      password: FHJz0902@!
+      password: xxxxxxxxx
   redis:
     host: 192.168.87.137
     port: 6379
-    password: FHJz09020226@!
+    password: xxxxxxxxxxxxx
     database: 0
   cache:
     redis:
       time-to-live: 1800000 #设置缓存过期时间
   #  mail:
 #    host: smtp.qq.com
-#    username: 860932016@qq.com
-#    password: ajkqhcbiwvokbahh
+#    username: xxxxxxxxxxxxxx
+#    password: xxxxxxxxxxxxxx
 #    port: 587
 #    default-encoding: UTF-8
 #    properties:
@@ -33,9 +33,9 @@ spring:
   mail:
     host: smtp.qq.com
     #发送验证码的邮箱
-    username: 860932016@qq.com
+    username: xxxxxxxx
     # 你的QQ邮箱授权码
-    password: uyciphgyhjwybfbc
+    password: xxxxxxxx
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
