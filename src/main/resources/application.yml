@@ -4,38 +4,55 @@ spring:
   application:
     # 应用名称
     name: reggie
-  datasource:
-    druid:
-      driver-class-name: com.mysql.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: root
-      password: xxxxxxxxx
+
+  shardingsphere:
+    datasource:
+      names: master,slave
+      #主数据源
+      master:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.80.128:3306/reggie?characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: FHJz09020226@!
+      #从数据源
+      slave:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.80.129:3306/reggie?characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: FHJz09020226@!
+    masterslave:
+      # 读写分离配置
+      load-balance-algorithm-type: round_robin
+      # 最终数据源名称
+      name: dataSource
+      # 主数据库源名称
+      master-data-source-name: master
+      # 从数据库源名称
+      slave-data-source-names: slave
+    props:
+      sql:
+        show: true # 开启SQl显示 默认为false
+  main:
+    allow-bean-definition-overriding: true
+
   redis:
-    host: 192.168.87.137
+    host: 192.168.80.128
     port: 6379
-    password: xxxxxxxxxxxxx
+    password: FHJz09020226@!
     database: 0
   cache:
     redis:
       time-to-live: 1800000 #设置缓存过期时间
-  #  mail:
-#    host: smtp.qq.com
-#    username: xxxxxxxxxxxxxx
-#    password: xxxxxxxxxxxxxx
-#    port: 587
-#    default-encoding: UTF-8
-#    properties:
-#      mail:
-#        smtp:
-#          socketFactoryClass: javax.net.ssl.SSLSocketFactory
-#        #          开启debug以后，邮件发送过程的日志会在控制台上打印出来
-#        debug: true
+
+
   mail:
     host: smtp.qq.com
     #发送验证码的邮箱
-    username: xxxxxxxx
+    username: 860932016@qq.com
     # 你的QQ邮箱授权码
-    password: xxxxxxxx
+    password: uyciphgyhjwybfbc
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
